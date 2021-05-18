@@ -1,6 +1,6 @@
 # ispw-deploy
 
-The ispw-deploy action allows your GitHub Actions workflow to trigger a deploy in your instance of BMC Compuware ISPW on the mainframe. This action can be used in scenarios where your mainframe source is stored in git, or when you want your GitHub Actions workflow to operate on source that is already stored in ISPW.
+The ispw-deploy action allows your GitHub Actions workflow to trigger a deploy in your instance of BMC Compuware ISPW on the mainframe. This action can be used in scenarios where your mainframe source is stored in Git, or when you want your GitHub Actions workflow to operate on source that is already stored in ISPW.
 
 ## Example usage
 
@@ -102,7 +102,7 @@ jobs:
 
 ### Create a token in CES
 
-In order to use this action, you must have an instance of the BMC Compuware CES product installed on one of your runners. Once that is complete, you will need to open CES in your web browser and create a token to be used during CES requests. To set up a new host connection, go to the hamburger menu in the upper left corner and select Host Connections.
+In order to use this action, you must access an instance of the BMC Compuware CES product. You will need to open CES in your web browser and create a token to be used during CES requests. To set up a new host connection, go to the hamburger menu in the upper left corner and select Host Connections.
 
 ![CES menu](media/ces-menu.png "CES menu")
 
@@ -136,6 +136,6 @@ Use the examples above to fill in a workflow script using the ispw-deploy action
 
 To enable debug logging in your GitHub actions workflow, see the guide [here](https://docs.github.com/en/actions/managing-workflow-runs/enabling-debug-logging).
 
-### Developers
+
 
 
