@@ -17,25 +17,9 @@ try {
     "deploy_environments",
     "system",
   ];
-/*
-  inputs["assignment_id"] = "PLAY004960";
-  inputs["level"] = "DEV2";
-  inputs["task_id"] = "7E558D10EF53";
-  inputs["ces_url"] = "http://10.100.12.250:48226/";
-  inputs["ces_token"] = "8c4dddb4-9853-42f3-9f2e-32b2fe4a44c5";
-  inputs["srid"] = "cw09-47623";
-  inputs["runtime_configuration"] = "TPZP";
-  inputs["change_type"] = "S";
-  inputs["execution_status"] = "I";
-
-  inputs["deploy_automatically"] =
-    '{"containerId":"PLAY004960","taskLevel":"DEV2","taskIds":"7E558D10EF56"}';
-  inputs["deploy_environments"] = undefined;
-  inputs["system"] = undefined;
-*/
   
   inputs = utils.retrieveInputs(core, inputs);
-  console.log("ISPW: parsed inputs: " + utils.convertObjectToJson(inputs));
+  core.debug("ISPW: parsed inputs: " + utils.convertObjectToJson(inputs));
 
   const requiredRuntime = ["runtime_configuration"];
   if (!utils.validateBuildParms(inputs, requiredRuntime)) {
@@ -135,7 +119,6 @@ try {
     // no need to fail the action if the deploy is never attempted
     console.log(error.message);
   } else {
-    core.debug(error.message);
     console.error("An error occurred while starting the deploy");
     core.setFailed(error.message);
   }
