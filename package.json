@@ -5,8 +5,10 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint .",
+    "format": "prettier --write **/*.js",
+    "format-check": "prettier --check **/*.js",
     "prepare": "ncc build index.js -o dist --source-map --license licenses.txt",
-    "test": "jest",
+    "test": "nyc --all=true --exclude=\"dist/**\" --exclude=\"coverage/**\" --exclude=\"test/**\" --reporter=json --reporter=text mocha",
     "all": "npm run lint && npm run prepare && npm run test"
   },
   "repository": {
@@ -25,7 +27,14 @@
   },
   "homepage": "https://github.com/actions/javascript-action#readme",
   "dependencies": {
-    "@actions/core": "^1.2.5"
+    "@actions/core": "^1.2.5",
+    "@actions/github": "^5.0.0",
+    "@bmc-compuware/ispw-action-utilities": "^1.0.0",
+    "chai": "^4.3.4",
+    "github": "^14.0.0",
+    "mocha": "^8.4.0",
+    "nyc": "^15.1.0",
+    "prettier": "^2.3.0"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.27.0",

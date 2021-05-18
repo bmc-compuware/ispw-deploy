@@ -1,13 +1,55 @@
-name: 'Wait'
-description: 'Wait a designated number of milliseconds'
+name: 'ispw-deploy'
+description: 'Run a deploy in BMC Compuware ISPW'
+branding:
+  icon: activity
+  color: orange
 inputs:
-  milliseconds:  # id of input
-    description: 'number of milliseconds to wait'
+  ces_url:
+    description: 'The URL to send requests to.'
     required: true
-    default: '1000'
+  ces_token:
+    description: 'The token to use when connecting to ISPW through CES'
+    required: true
+  srid:
+    description: 'The ID for the instance of ISPW to connect to'
+    required: true
+  runtime_configuration:
+    description: 'The runtime configuration used when connecting to ISPW'
+    required: true
+  assignment_id:
+    description: 'The container for which you intend to deploy tasks.'
+    required: false
+  level:
+    description: 'The level that the tasks exist at in the assignment'
+    required: false
+  task_id:
+    description: 'The comma-separated list of task IDs for the tasks that need to be deployed'
+    required: false
+  deploy_automatically:
+    description: 'The request parameters for the generate will come from a file written to a local directory. This option is only valid when used in combination with a Git to ISPW Integration step'
+    required: false
+  change_type: 
+    description: 'S for standard, I for incidental, or E for emergency. Default value of S'
+    required: true
+    default: 'S'
+  execution_status:
+    description: 'I for immediate execution or at start date/time, H to create request in hold'
+    required: false
+    default: 'I'
+  deploy_environments:
+    description: 'Define specific environments to deploy. If you wish to deploy to only certain environments, you can list them here, separated by a space. The length of the field is limited to 255.'
+    required: false
+    default: 'false'
+  system:
+    description: 'Define a specific system to deploy'
+    required: false
+    default: 'false'
 outputs:
-  time: # output will be available to future steps
-    description: 'The message to output'
+  set_id:
+    description: 'The ID of the set that was used for processing'
+  url:
+    description: 'The URL that can be used to retrieve information about the set that was used for processing'
 runs:
   using: 'node12'
   main: 'dist/index.js'
+

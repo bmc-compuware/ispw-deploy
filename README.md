@@ -1,116 +1,141 @@
-# Create a JavaScript Action
+# ispw-deploy
 
-<p align="center">
-  <a href="https://github.com/actions/javascript-action/actions"><img alt="javscript-action status" src="https://github.com/actions/javascript-action/workflows/units-test/badge.svg"></a>
-</p>
+The ispw-deploy action allows your GitHub Actions workflow to trigger a deploy in your instance of BMC Compuware ISPW on the mainframe. This action can be used in scenarios where your mainframe source is stored in git, or when you want your GitHub Actions workflow to operate on source that is already stored in ISPW.
 
-Use this template to bootstrap the creation of a JavaScript action.:rocket:
+## Example usage
 
-This template includes tests, linting, a validation workflow, publishing, and versioning guidance.
+The following example will automatically retrieve the deploy parameters from a previous step in the job
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+``` yaml
+on: [push]
 
-## Create an action from this template
-
-Click the `Use this Template` and provide the new repo details for your action
-
-## Code in Main
-
-Install the dependencies
-
-```bash
-npm install
+jobs:
+  run-ispw-generate-deploy:
+    runs-on: ubuntu-latest
+    name: A job to sync git source into ISPW, then deploy it on the mainframe
+    steps:
+      - name: Sync step
+        uses: bmc-compuware/ispw-sync@v20.6.1.gtk
+        id: sync
+        with:
+          host: 'host.example.com'
+          port: 37733
+          uid: ${{ secrets.TSOUSER }}
+          pass: ${{ secrets.TSOPASS }}
+          runtimeConfiguration: 'ISPW'
+          stream: 'PLAY'
+          application: 'PLAY'
+          checkoutLevel: 'DEV2'
+          gitUid: 'admin'
+          gitPass: ${{ secrets.GITPASS }}
+          showEnv: true
+      - name: Generate
+        uses: bmc-compuware/ispw-generate@v1
+        id: generate
+        with:
+          ces_url: 'https://CES:48226/'
+          ces_token: ${{ secrets.CES_TOKEN }}
+          srid: 'host-37733'
+          runtime_configuration: 'ISPW'
+          generate_automatically: ${{ steps.sync.outputs.automaticBuildJson }}
+      - name: Get the number of generate failures
+        run: echo "The number of generate failures is ${{ steps.generate.outputs.generate_failed_count }}"
+      - name: Deploy
+        uses: bmc-compuware/ispw-deploy@v1
+        id: deploy
+        with:
+          ces_url: 'https://CES:48226/'
+          ces_token: ${{ secrets.CES_TOKEN }}
+          srid: 'host-37733'
+          runtime_configuration: 'ISPW'
+          deploy_automatically: ${{ steps.sync.outputs.automaticBuildJson }}
 ```
 
-Run the tests :heavy_check_mark:
+The following example will deploy two specific ISPW tasks within assignment PLAY000826
 
-```bash
-$ npm test
+``` yaml
+on: [push]
 
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-...
+jobs:
+  run-ispw-deploy:
+    runs-on: ubuntu-latest
+    name: A job to deploy in ISPW
+    steps:
+      - name: Deploy
+        uses: bmc-compuware/ispw-deploy@v1
+        id: deploy
+        with:
+          ces_url: "https://CES:48226/"
+          ces_token: ${{ secrets.CES_TOKEN }}
+          srid: host-37733
+          runtime_configuration: ISPW
+          assignment_id: PLAY000826
+          level: DEV1
+          task_id: "7E3A5B274D24,7E3A5B274EFA"
+      - name: Get the set ID for the deploy
+        run: echo "The ISPW set used for the deploy is ${{ steps.deploy.outputs.set_id }}"
 ```
 
-## Change action.yml
+## Inputs
 
-The action.yml defines the inputs and output for your action.
+| Input name | Required | Description |
+| ---------- | -------- | ----------- |
+| `ces_url` | Required | The URL to use when connecting to CES |
+| `ces_token` | Required | The token to use when authenticating the request to CES |
+| `srid` | Required | The SRID of the ISPW instance to connect to |
+| `change_type` | Optional | The change type of this request. The default value is 'S' for standard. |
+| `execution_status` | Optional | The flag to indicate whether the deploy should happen immediately, or should be held. The default is 'I' for immediate. Other possible value is 'H' for hold. |
+| `runtime_configuration` | Optional | The runtime configuration for the instance of ISPW you are connecting to. |
+| `deploy_automatically` | Optional | A string of JSON that contains the parameters for the deploy. If using an ispw-sync step before the deploy, this JSON string can be retrieved from the outputs of that step. If `deploy_automatically` is not being used, then the `assignment_id`, `level`, and `task_id` must be specified. |
+| `assignment_id` | Optional | The assignment for which you intend to deploy tasks. Do not use if `deploy_automatically` has already been specified. |
+| `level` | Optional | The level that the tasks exist at in the assignment. Do not use if `deploy_automatically` has already been specified. |
+| `task_id` | Optional | The comma-separated string of task IDs for the tasks that need to be deployd. Do not use if `deploy_automatically` has already been specified. |
 
-Update the action.yml with your name, description, inputs and outputs for your action.
+## Outputs
 
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
+| Output name | Output type | Description |
+| ----------- | ----------- | ----------- |
+| `set_id` | string | The ID of the set that was used for processing. |
+| `url` | string | The URL that can be used to retrieved information about the set that was used for processing. |
 
-## Change the Code
+## Setup
 
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
+### Create a token in CES
 
-```javascript
-const core = require('@actions/core');
-...
+In order to use this action, you must have an instance of the BMC Compuware CES product installed on one of your runners. Once that is complete, you will need to open CES in your web browser and create a token to be used during CES requests. To set up a new host connection, go to the hamburger menu in the upper left corner and select Host Connections.
 
-async function run() {
-  try {
-      ...
-  }
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
+![CES menu](media/ces-menu.png "CES menu")
 
-run()
-```
+On the Host Connection Settings page, click "Add." Set up the host connection to be used for ISPW and click OK when finished.
 
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
+Then, go back to the menu and select Security. On the Security page, click Add and the Personal Access Token dialog will come up.
 
-## Package for distribution
+![CES token dialog](media/ces-token-dialog.png)
 
-GitHub Actions will run the entry point from the action.yml. Packaging assembles the code into one file that can be checked in to Git, enabling fast and reliable execution and preventing the need to check in node_modules.
+On the Personal Access Token dialog, select the host that you want to create a token for, and enter in the mainframe username and password.
 
-Actions are run from GitHub repos.  Packaging the action will create a packaged action in the dist folder.
+Once done, there will be a new token in the table on the Security page
 
-Run prepare
+![Security page](media/ces-token.png)
 
-```bash
-npm run prepare
-```
+### Save the token as a GitHub Secret
 
-Since the packaged index.js is run from the dist folder.
+From the Security page in CES, copy the token. In GitHub go to Settings > Secrets and click the button for New Repository Secret.
 
-```bash
-git add dist
-```
+![Secrets page](media/github-secrets-settings.png)
 
-## Create a release branch
+On the New Secret page, paste the token that was copied earlier and click the Add secret button. Make a note of the name you give the secret so that you can easily use it in your workflow script.
 
-Users shouldn't consume the action from master since that would be latest code and actions can break compatibility between major versions.
+![Saving secret](media/github-saving-secret.png)
 
-Checkin to the v1 release branch
+### Fill in the workflow script
 
-```bash
-git checkout -b v1
-git commit -a -m "v1 release"
-```
+Use the examples above to fill in a workflow script using the ispw-deploy action. Note that if you want the input assignment, level, and taskIds to be automatically picked up from the ISPW synchronization with Git, you will need a synchronization step in you job, which will run before the deploy.
 
-```bash
-git push origin v1
-```
+### Troubleshooting
 
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
+To enable debug logging in your GitHub actions workflow, see the guide [here](https://docs.github.com/en/actions/managing-workflow-runs/enabling-debug-logging).
 
-Your action is now published! :rocket:
+### Developers
 
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Usage
-
-You can now consume the action by referencing the v1 branch
-
-```yaml
-uses: actions/javascript-action@v1
-with:
-  milliseconds: 1000
-```
-
-See the [actions tab](https://github.com/actions/javascript-action/actions) for runs of this action! :rocket:
+For information about contributing to the ispw-deploy action, see [Developing on the ispw-deploy GitHub action](./CONTRIBUTING.md)
