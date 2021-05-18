@@ -1,11 +1,11 @@
 name: 'ispw-deploy'
-description: 'Run a deploy in BMC Compuware ISPW'
+description: 'Run deploy tasks from BMC Compuware ISPW'
 branding:
-  icon: activity
+  icon: package
   color: orange
 inputs:
   ces_url:
-    description: 'The URL to send requests to.'
+    description: 'The URL to send requests to'
     required: true
   ces_token:
     description: 'The token to use when connecting to ISPW through CES'
@@ -17,7 +17,7 @@ inputs:
     description: 'The runtime configuration used when connecting to ISPW'
     required: true
   assignment_id:
-    description: 'The container for which you intend to deploy tasks.'
+    description: 'The container for which you intend to deploy tasks'
     required: false
   level:
     description: 'The level that the tasks exist at in the assignment'
