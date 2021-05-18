@@ -1,7 +1,7 @@
 name: 'ispw-deploy'
 description: 'Run deploy tasks from BMC Compuware ISPW'
 branding:
-  icon: package
+  icon:  package
   color: orange
 inputs:
   ces_url:
