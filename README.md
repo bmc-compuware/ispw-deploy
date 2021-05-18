@@ -130,7 +130,7 @@ On the New Secret page, paste the token that was copied earlier and click the Ad
 
 ### Fill in the workflow script
 
-Use the examples above to fill in a workflow script using the ispw-deploy action. Note that if you want the input assignment, level, and taskIds to be automatically picked up from the ISPW synchronization with Git, you will need a synchronization step in you job, which will run before the deploy.
+Use the examples above to fill in a workflow script using the ispw-deploy action. Note that if you want the input assignment, level, and taskIds to be automatically picked up from the ISPW synchronization with Git, you will need synchronization step and generate step in you job, which will run before the deploy.
 
 ### Troubleshooting
 
@@ -138,4 +138,4 @@ To enable debug logging in your GitHub actions workflow, see the guide [here](ht
 
 ### Developers
 
-For information about contributing to the ispw-deploy action, see [Developing on the ispw-deploy GitHub action](./CONTRIBUTING.md)
+
