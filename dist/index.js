@@ -22,7 +22,7 @@ try {
     "execution_status",
     "deploy_automatically",
     "deploy_environments",
-    "system",
+    "system"
   ];
   
   inputs = utils.retrieveInputs(core, inputs);
@@ -101,9 +101,9 @@ try {
       }
     )
     .then(
-      () => console.log("The deploy request completed successfully."),
+      () => console.log("The deploy request has been submitted."),
       (error) => {
-        console.log("The deploy request completed with errors.");
+        console.log("An error occurred while submitting the deploy request.");
         if (error.stack) {
           core.debug(error.stack);
         } else if (error.message) {
@@ -118,7 +118,7 @@ try {
   // the following code will execute after the HTTP request was started,
   // but before it receives a response.
   console.log(
-    "Starting the deploy process for task " + deployParms.taskIds.toString()
+    "Starting to submit the deploy request for task " + deployParms.taskIds.toString()
   );
 } catch (error) {
   if (error instanceof MissingArgumentException) {
@@ -126,7 +126,7 @@ try {
     // no need to fail the action if the deploy is never attempted
     console.log(error.message);
   } else {
-    console.error("An error occurred while starting the deploy");
+    console.error("An error occurred while submitting the deploy request.");
     core.setFailed(error.message);
   }
 }
