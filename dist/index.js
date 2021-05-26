@@ -81,8 +81,8 @@ try {
       (error) => {
         // there was a problem with the request to CES
         if (error.response !== undefined) {
-          console.log("ISPW: received error code: " + error.response.status);
-          console.log(
+          console.debug("ISPW: received error code: " + error.response.status);
+          console.debug(
             "ISPW: received error response body: " +
               utils.convertObjectToJson(error.response.data)
           );
@@ -780,7 +780,7 @@ function convertObjectToJson(data) {
  * arguments
  * @param  {string} requestPath the action-specific request portion of the request url,
  * beginning with a slash. For example,
- * '/ispw/srid/assignments/assignment345/taskIds/deploy?taskId=7bd249ba12&level=DEV2'
+ * '/ispw/srid/assignments/assignment345/taskIds/generate-await?taskId=7bd249ba12&level=DEV2'
  * @return {URL} the url for the request
  */
 function assembleRequestUrl(cesUrl, requestPath) {

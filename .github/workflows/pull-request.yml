@@ -1,7 +1,7 @@
 name: pull-request-checks
 on: [pull_request]
 jobs:
-  build:
+  verify-code:
     name: Building action and running tests
     runs-on: windows-latest
     steps:
@@ -23,5 +23,8 @@ jobs:
       - name: Run Tests
         run: npm run test
 
-      - name: Check Code Coverage
-        run: npm run coverage
+  invoke-action:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ./
