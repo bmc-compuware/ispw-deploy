@@ -74,8 +74,8 @@ try {
       (error) => {
         // there was a problem with the request to CES
         if (error.response !== undefined) {
-          console.log("ISPW: received error code: " + error.response.status);
-          console.log(
+          console.debug("ISPW: received error code: " + error.response.status);
+          console.debug(
             "ISPW: received error response body: " +
               utils.convertObjectToJson(error.response.data)
           );
