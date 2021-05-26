@@ -21,14 +21,6 @@ try {
   inputs = utils.retrieveInputs(core, inputs);
   core.debug("ISPW: parsed inputs: " + utils.convertObjectToJson(inputs));
 
-  const requiredRuntime = ["runtime_configuration"];
-  if (!utils.validateBuildParms(inputs, requiredRuntime)) {
-    throw new MissingArgumentException(
-      "The input field runtime_configuration is missing. " +
-        "\nSkipping the deploy request...."
-    );
-  }
-
   if (utils.stringHasContent(inputs.deploy_automatically)) {
     console.log(
       "Deploy parameters are being retrieved from the " +
@@ -82,8 +74,8 @@ try {
       (error) => {
         // there was a problem with the request to CES
         if (error.response !== undefined) {
-          console.log("ISPW: received error code: " + error.response.status);
-          console.log(
+          console.debug("ISPW: received error code: " + error.response.status);
+          console.debug(
             "ISPW: received error response body: " +
               utils.convertObjectToJson(error.response.data)
           );
