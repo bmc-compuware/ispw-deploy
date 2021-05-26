@@ -15,7 +15,7 @@ inputs:
     required: true
   runtime_configuration:
     description: 'The runtime configuration used when connecting to ISPW'
-    required: true
+    required: false
   assignment_id:
     description: 'The container for which you intend to deploy tasks'
     required: false
@@ -26,7 +26,7 @@ inputs:
     description: 'The comma-separated list of task IDs for the tasks that need to be deployed'
     required: false
   deploy_automatically:
-    description: 'The request parameters for the generate will come from a file written to a local directory. This option is only valid when used in combination with a Git to ISPW Integration step'
+    description: 'The request parameters for the deploy will come from JSON passed in this input. This option is only valid when used in combination with a Git to ISPW Integration step'
     required: false
   change_type: 
     description: 'S for standard, I for incidental, or E for emergency. Default value of S'
