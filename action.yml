@@ -1,5 +1,5 @@
 name: 'ispw-deploy'
-description: 'Run deploy tasks from BMC Compuware ISPW'
+description: 'Run a mainframe deploy using ISPW'
 branding:
   icon:  package
   color: orange
