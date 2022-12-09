@@ -150,6 +150,7 @@ Use the examples above to fill in a workflow script using the ispw-deploy action
 
 To enable debug logging in your GitHub actions workflow, see the guide [here](https://docs.github.com/en/actions/managing-workflow-runs/enabling-debug-logging).
 
-
+## See also
+- [License](LICENSE.txt)
 
 
