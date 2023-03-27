@@ -19,7 +19,7 @@ try {
   ];
   
   inputs = utils.retrieveInputs(core, inputs);
-  core.debug("ISPW: parsed inputs: " + utils.convertObjectToJson(inputs));
+  core.debug("Code Pipeline: parsed inputs: " + utils.convertObjectToJson(inputs));
 
   if (utils.stringHasContent(inputs.deploy_automatically)) {
     console.log(
@@ -36,20 +36,20 @@ try {
     );
   }
   core.debug(
-    "ISPW: parsed deploy parms: " + utils.convertObjectToJson(deployParms)
+    "Code Pipeline: parsed deploy parms: " + utils.convertObjectToJson(deployParms)
   );
 
   const requiredFields = ["containerId", "taskLevel", "taskIds"];
   if (!utils.validateBuildParms(deployParms, requiredFields)) {
     throw new MissingArgumentException(
-      "Inputs required for ispw-deploy are missing. " +
+      "Inputs required for code-pipeline-deploy are missing. " +
         "\nSkipping the deploy request...."
     );
   }
 
   const reqPath = getDeployTaskUrlPath(inputs.srid, deployParms);
   const reqUrl = utils.assembleRequestUrl(inputs.ces_url, reqPath);
-  core.debug("ISPW: request url: " + reqUrl.href);
+  core.debug("Code Pipeline: request url: " + reqUrl.href);
 
   const reqBodyObj = assembleRequestBodyObject(
     inputs.runtime_configuration,
@@ -64,7 +64,7 @@ try {
     .then(
       (response) => {
         core.debug(
-          "ISPW: received response body: " +
+          "Code Pipeline: received response body: " +
             utils.convertObjectToJson(response.data)
         );
         // deploy could have passed or failed
@@ -74,9 +74,9 @@ try {
       (error) => {
         // there was a problem with the request to CES
         if (error.response !== undefined) {
-          console.debug("ISPW: received error code: " + error.response.status);
+          console.debug("Code Pipeline: received error code: " + error.response.status);
           console.debug(
-            "ISPW: received error response body: " +
+            "Code Pipeline: received error response body: " +
               utils.convertObjectToJson(error.response.data)
           );
           setOutputs(core, error.response.data);
@@ -146,12 +146,12 @@ function handleResponseBody(responseBody) {
 function setOutputs(core, responseBody) {
   if (responseBody) {
     if (responseBody.setId) {      
-      console.log( "ISPW: received set ID: " + responseBody.setId)
+      console.log( "Code Pipeline: received set ID: " + responseBody.setId)
       core.setOutput("set_id", responseBody.setId);
     }
 
     if (responseBody.url) {
-      console.log( "ISPW: received URL: " + responseBody.url)
+      console.log( "Code Pipeline: received URL: " + responseBody.url)
       core.setOutput("url", responseBody.url);
     }
   }
@@ -161,7 +161,7 @@ function setOutputs(core, responseBody) {
  * Uses the input parameters from the action metadata to fill in a deployParms
  * object.
  * @param  {string} inputAssignment the assignmentId passed into the action
- * @param  {string} inputLevel the ISPW level passed into the action
+ * @param  {string} inputLevel the Code Pipeline level passed into the action
  * @param  {string} inputTaskId the comma separated list of task IDs passed
  * into the action
  * @return {deployParms} a deployParms object with the fields filled in.
@@ -207,7 +207,7 @@ DeployFailureException.prototype = Object.create(Error.prototype);
 /**
  * Gets the request path for the CES REST api deploytask on tasks. The returned path starts with
  * '/ispw/' and ends with the query parameters
- * @param {string} srid The SRID for this instance of ISPW
+ * @param {string} srid The SRID for this instance of Code Pipeline
  * @param {*} deployParms The build parms to use when filling out the request url
  * @return {string} the request path which can be appended to the CES url
  */

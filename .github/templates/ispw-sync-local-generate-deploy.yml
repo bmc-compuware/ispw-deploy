@@ -1,4 +1,4 @@
-name: ispw-sync-local, generate and deploy
+name: code-pipeline-sync-local, generate and deploy
 
 
 on: [push]
