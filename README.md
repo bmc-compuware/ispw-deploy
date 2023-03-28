@@ -114,9 +114,9 @@ jobs:
 
 ## Setup
 
-### Create a token in CES
+### Create a token in Common Enterprise Services (CES)
 
-In order to use this action, you must access an instance of the BMC AMI Common Enterprise Services (Common Enterprise Services) product. You will need to open CES in your web browser and create a token to be used during CES requests. To set up a new host connection, go to the hamburger menu in the upper left corner and select Host Connections.
+In order to use this action, you must access an instance of the CES product. You will need to open CES in your web browser and create a token to be used during CES requests. To set up a new host connection, go to the hamburger menu in the upper left corner and select Host Connections.
 
 ![CES menu](media/ces-menu.png "CES menu")
 
