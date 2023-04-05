@@ -48,7 +48,7 @@ try {
   const requiredFields = ["containerId", "taskLevel", "taskIds"];
   if (!utils.validateBuildParms(deployParms, requiredFields)) {
     throw new MissingArgumentException(
-      "Inputs required for code-pipeline-deploy are missing. " +
+      "Inputs required for Code Pipeline Deploy are missing. " +
         "\nSkipping the deploy request...."
     );
   }
