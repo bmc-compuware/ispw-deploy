@@ -1,4 +1,4 @@
-name: 'code-pipeline-deploy'
+name: 'Code Pipeline Deploy'
 description: 'Run a mainframe deploy using Code Pipeline'
 branding:
   icon:  package
