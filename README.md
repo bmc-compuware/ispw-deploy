@@ -65,7 +65,7 @@ jobs:
           deploy_automatically: ${{ steps.sync.outputs.automaticBuildJson }}
 ```
 
-The following example will deploy two specific Code Pipeline tasks within assignment PLAY000826
+The following example will deploy two specific Code Pipeline tasks within assignment PLAY000826 with ces_token
 
 ``` yaml
 on: [push]
@@ -90,12 +90,36 @@ jobs:
         run: echo "The Code Pipeline set used for the deploy is ${{ steps.deploy.outputs.set_id }}"
 ```
 
+The following example will deploy two specific Code Pipeline tasks within assignment PLAY000826 with certificate
+
+``` yaml
+on: [push]
+
+jobs:
+  run-ispw-deploy:
+    runs-on: ubuntu-latest
+    name: A job to deploy in Code Pipeline
+    steps:
+      - name: Deploy
+        uses: bmc-compuware/ispw-deploy@v1
+        id: deploy
+        with:
+          ces_url: "https://CES:48226/"
+          certificate: ${{ secrets.certificate }}
+          srid: host-37733
+          runtime_configuration: ISPW
+          assignment_id: PLAY000826
+          level: DEV1
+          task_id: "7E3A5B274D24,7E3A5B274EFA"
+      - name: Get the set ID for the deploy
+        run: echo "The Code Pipeline set used for the deploy is ${{ steps.deploy.outputs.set_id }}"
+```
+
 ## Inputs
 
 | Input name | Required | Description |
 | ---------- | -------- | ----------- |
 | `ces_url` | Required | The URL to use when connecting to CES |
-| `ces_token` | Required | The token to use when authenticating the request to CES |
 | `srid` | Required | The SRID of the Code Pipeline instance to connect to |
 | `change_type` | Optional | The change type of this request. The default value is 'S' for standard. |
 | `execution_status` | Optional | The flag to indicate whether the deploy should happen immediately, or should be held. The default is 'I' for immediate. Other possible value is 'H' for hold. |
@@ -104,6 +128,14 @@ jobs:
 | `assignment_id` | Optional | The assignment for which you intend to deploy tasks. Do not use if `deploy_automatically` has already been specified. |
 | `level` | Optional | The level that the tasks exist at in the assignment. Do not use if `deploy_automatically` has already been specified. |
 | `task_id` | Optional | The comma-separated string of task IDs for the tasks that need to be deployd. Do not use if `deploy_automatically` has already been specified. |
+
+| `ces_token` | Optional | The token to use when authenticating the request to CES |
+| `certificate` | Optional | The certificate to use when authenticating the request to CES |
+
+## NOTE
+
+Users must pass one of the authentication method in workflow i.e CES_TOKEN or certificate
+
 
 ## Outputs
 
@@ -141,6 +173,17 @@ From the Security page in CES, copy the token. In GitHub go to Settings > Secret
 On the New Secret page, paste the token that was copied earlier and click the Add secret button. Make a note of the name you give the secret so that you can easily use it in your workflow script.
 
 ![Saving secret](media/github-saving-secret.png)
+
+### Save the certificate as a GitHub Secret
+
+Once you get the certificate, copy the 64bit text without and line breaks. In GitHub go to Settings > Secrets and click the button for New Repository Secret.
+
+![Secrets page](media/github-secrets-settings.png)
+
+On the New Secret page, paste the certificate that was copied earlier and click the Add secret button. Make a note of the name you give the secret so that you can easily use it in your workflow script.
+
+![Saving secret](media/github-saving-certificate.png)
+
 
 ### Fill in the workflow script
 
