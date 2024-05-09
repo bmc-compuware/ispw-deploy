@@ -9,6 +9,7 @@ try {
     "task_id",
     "ces_url",
     "ces_token",
+    "certificate",
     "srid",
     "runtime_configuration",
     "change_type",
@@ -59,7 +60,14 @@ try {
     inputs.system
   );
 
-  utils
+  // getting host port details from srid passed
+  const hostAndPort = inputs.srid.split('-');
+  const host = hostAndPort[0];
+  const port = hostAndPort[1];
+ //
+  if(isAuthTokenOrCerti(inputs.ces_token, inputs.certificate)) {
+    //for token
+    utils
     .getHttpPostPromise(reqUrl, inputs.ces_token, reqBodyObj)
     .then(
       (response) => {
@@ -99,7 +107,50 @@ try {
         core.setFailed(error.message);
       }
     );
-
+  }else {
+    //for certi
+    utils
+    .getHttpPostPromiseWithCert(reqUrl, inputs.certificate, host, port, reqBodyObj)
+    .then(
+      (response) => {
+        core.debug(
+          "Code Pipeline: received response body: " +
+            utils.convertObjectToJson(response.data)
+        );
+        // deploy could have passed or failed
+        setOutputs(core, response.data);
+        return handleResponseBody(response.data);
+      },
+      (error) => {
+        // there was a problem with the request to CES
+        if (error.response !== undefined) {
+          console.debug("Code Pipeline: received error code: " + error.response.status);
+          console.debug(
+            "Code Pipeline: received error response body: " +
+              utils.convertObjectToJson(error.response.data)
+          );
+          setOutputs(core, error.response.data);
+          throw new DeployFailureException(error.response.data.message);
+        }
+        throw error;
+      }
+    )
+    .then(
+      () => console.log("The deploy request has been submitted."),
+      (error) => {
+        console.log("An error occurred while submitting the deploy request.");
+        if (error.stack) {
+          core.debug(error.stack);
+        } else if (error.message) {
+          core.debug(error.message);
+        } else {
+          core.debug(error);
+        }
+        core.setFailed(error.message);
+      }
+    );
+  }
+   //
   // the following code will execute after the HTTP request was started,
   // but before it receives a response.
   console.log(
@@ -265,12 +316,31 @@ function assembleRequestBodyObject(
   return requestBody;
 }
 
+/**
+ * Checks which authentication method is used in workflow i.e. token or certi
+ * @param  {string} cesToken the ces_token for authentication
+ * @param  {string} certificate the certificate passed for authentication
+ * @return {boolean} which authentication is passed in workflow i.e token or certi
+ * true for token
+ * false for certi
+ */
+function isAuthTokenOrCerti(cesToken, certificate) {
+  if (utils.stringHasContent(cesToken)) {
+    return true;
+  } else if (utils.stringHasContent(certificate)) {
+    return false;
+  } else {
+    return undefined;
+  }
+}
+
 module.exports = {
   getParmsFromInputs,
   setOutputs,
   getDeployTaskUrlPath,
   assembleRequestBodyObject,
   handleResponseBody,
+  isAuthTokenOrCerti,
   MissingArgumentException,
   DeployFailureException,
 };
