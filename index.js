@@ -64,7 +64,7 @@ try {
   const hostAndPort = inputs.srid.split('-');
   const host = hostAndPort[0];
   const port = hostAndPort[1];
- //
+ 
   if(isAuthTokenOrCerti(inputs.ces_token, inputs.certificate)) {
     //for token
     utils
@@ -150,7 +150,6 @@ try {
       }
     );
   }
-   //
   // the following code will execute after the HTTP request was started,
   // but before it receives a response.
   console.log(

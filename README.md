@@ -65,7 +65,7 @@ jobs:
           deploy_automatically: ${{ steps.sync.outputs.automaticBuildJson }}
 ```
 
-The following example will deploy two specific Code Pipeline tasks within assignment PLAY000826 with ces_token
+The following example will deploy two specific Code Pipeline tasks within assignment PLAY000826 using ces_token as authentication method.
 
 ``` yaml
 on: [push]
@@ -90,7 +90,7 @@ jobs:
         run: echo "The Code Pipeline set used for the deploy is ${{ steps.deploy.outputs.set_id }}"
 ```
 
-The following example will deploy two specific Code Pipeline tasks within assignment PLAY000826 with certificate
+The following example will deploy two specific Code Pipeline tasks within assignment PLAY000826 using certificate as authentication method.
 
 ``` yaml
 on: [push]
@@ -134,7 +134,7 @@ jobs:
 
 ## NOTE
 
-Users must pass one of the authentication method in workflow i.e CES_TOKEN or certificate
+Users must pass one of the authentication method in workflow i.e ces_token or certificate
 
 
 ## Outputs
