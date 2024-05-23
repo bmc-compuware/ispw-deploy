@@ -30,7 +30,7 @@
   "dependencies": {
     "@actions/core": "^1.10.1",
     "@actions/github": "^5.1.1",
-    "@bmc-compuware/ispw-action-utilities": "^1.2.0",
+    "@bmc-compuware/ispw-action-utilities": "https://github.com/bmc-compuware/ispw-action-utilities.git#main",
     "chai": "^4.3.4",
     "github": "^14.0.0",
     "mocha": "^8.4.0",
