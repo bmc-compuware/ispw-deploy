@@ -379,6 +379,9 @@ async function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000
           Authorization: `${token}`,  // Add the token to the headers
         },
       });
+
+      console.log('Response data:', response.data);
+      
       const {status} = response.data;
 
       console.log(`Current status: ${status}`);
