@@ -4,12 +4,24 @@
 /***/ 2932:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
+/* eslint-disable no-unused-vars */
 const core = __nccwpck_require__(2186);
 const utils = __nccwpck_require__(2045);
 const axios = __nccwpck_require__(6545);
 
 let setID;
 let setUrl;
+
+const SET_STATE_DISPATCHED = "Dispatched";
+const SET_STATE_EXECUTING = "Executing";
+const SET_STATE_COMPLETE = "Complete";
+const SET_STATE_CLOSED = "Closed";
+const SET_STATE_FAILED = "Failed";
+const SET_STATE_HELD = "Held";
+const SET_STATE_RELEASED = "Released";
+const SET_STATE_TERMINATED = "Terminated";
+const SET_STATE_WAITING_APPROVAL = "Waiting-Approval";
+const SET_STATE_WAITING_LOCK = "Waiting-Lock";
 
 try {
   let deployParms;
@@ -362,7 +374,7 @@ function isAuthTokenOrCerti(cesToken, certificate) {
 
 // Function to poll the set status
 // eslint-disable-next-line require-jsdoc, no-unused-vars
-async function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000) {
+function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000) {
   const startTime = Date.now(); // Track the start time
 
   try {
@@ -379,7 +391,7 @@ async function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000
       }
 
       // Poll the URL for set status
-      const response = await axios.get(`${url}`, {
+      const response = axios.get(`${url}`, {
         headers: {
          "Content-Type": "application/json",
           Authorization: `${token}`,  // Add the token to the headers
@@ -389,18 +401,60 @@ async function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000
       console.log('Response data:', response.data);
       console.log('State:', response.data.state);
 
-      const status = response.data.state;
+      const setStatus = response.data.state;
 
-      console.log(`Current status: ${status}`);
+      console.log(`Current status: ${setStatus}`);
 
-      if (status === 'closed') {
-        console.log(`Set ${setId} is completed!`);
+      // if (setStatus == 'Closed') {
+      //   console.log(`Set ${setId} is completed!`);
+      //   break;
+      // }
+
+      console.log("Waiting for set to complete...");
+      if (setStatus == SET_STATE_FAILED) {
+        console.log(
+          "Code Pipeline: Set " + setId + " - action [%s] failed.",
+          "Deploy"
+        );
+        break;
+      } else if (setStatus == SET_STATE_TERMINATED) {
+        console.log(
+          "Code Pipeline: Set " + setId + " - successfully terminated."
+        );
+        break;
+      } else if (setStatus == SET_STATE_HELD) {
+        console.log(
+          "Code Pipeline: Set " + setId + " - successfully held."
+        );
+        break;
+      } else if (
+        setStatus == SET_STATE_RELEASED ||
+        setStatus == SET_STATE_WAITING_LOCK
+      ) {
+        console.log(
+          "Code Pipeline: Set " + setId + " - successfully released."
+        );
+        break;
+      } else if (setStatus == SET_STATE_WAITING_APPROVAL) {
+        console.log(
+          "Code Pipeline: In set (" +
+          setId +
+            ") process, Approval required."
+        );
+        break;
+      } else if (
+        setStatus == SET_STATE_CLOSED ||
+        setStatus == SET_STATE_COMPLETE
+      ) {
+        console.log(
+          "Code Pipeline: Action completed."
+        );
         break;
       }
 
       console.log(`Waiting for ${interval / 1000} seconds before the next poll...`);
       // Wait for the specified interval before the next poll
-      await delay(interval);
+      delay(interval);
     }
   } catch (error) {
     console.error('Error while polling:', error.message || error);
