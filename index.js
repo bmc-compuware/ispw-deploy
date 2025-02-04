@@ -368,7 +368,7 @@ function isAuthTokenOrCerti(cesToken, certificate) {
 
 // Function to poll the set status
 // eslint-disable-next-line require-jsdoc, no-unused-vars
-function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000) {
+async function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000) {
   const startTime = Date.now(); // Track the start time
 
   try {
@@ -385,14 +385,14 @@ function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000) {
       }
 
       // Poll the URL for set status
-      const response = axios.get(`${url}`, {
+      const response = await axios.get(`${url}`, {
         headers: {
          "Content-Type": "application/json",
           Authorization: `${token}`,  // Add the token to the headers
         },
       });
 
-      console.log('Response data:', response.data);
+      // console.log('Response data:', response.data);
       console.log('State:', response.data.state);
 
       const setStatus = response.data.state;
@@ -448,7 +448,7 @@ function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000) {
 
       console.log(`Waiting for ${interval / 1000} seconds before the next poll...`);
       // Wait for the specified interval before the next poll
-      delay(interval);
+      await delay(interval);
     }
   } catch (error) {
     console.error('Error while polling:', error.message || error);
