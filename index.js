@@ -1,5 +1,9 @@
 const core = require("@actions/core");
 const utils = require("@bmc-compuware/ispw-action-utilities");
+const axios = require('axios');
+
+let setID;
+let setUrl;
 
 try {
   let deployParms;
@@ -94,7 +98,22 @@ try {
       }
     )
     .then(
-      () => console.log("The deploy request has been submitted."),
+      () => {
+        console.log("The deploy request has been submitted.");
+        console.log("The set_id is :", setID);
+        console.log("The set_url is :", setUrl);       
+        let skipWaitingForSetCompletion = false;
+          if (!skipWaitingForSetCompletion) {
+            if (setID) {
+              pollSetStatus(setUrl, setID);
+            }
+          }
+          if (skipWaitingForSetCompletion) {
+            console.log(
+              "Skip waiting for the completion of the set for this job..."
+            );
+          }
+      },
       (error) => {
         console.log("An error occurred while submitting the deploy request.");
         if (error.stack) {
@@ -198,11 +217,13 @@ function setOutputs(core, responseBody) {
     if (responseBody.setId) {      
       console.log( "Code Pipeline: received set ID: " + responseBody.setId)
       core.setOutput("set_id", responseBody.setId);
+      setID=responseBody.setId;
     }
 
     if (responseBody.url) {
       console.log( "Code Pipeline: received URL: " + responseBody.url)
       core.setOutput("url", responseBody.url);
+      setUrl=responseBody.url;
     }
   }
 }
@@ -331,6 +352,50 @@ function isAuthTokenOrCerti(cesToken, certificate) {
   } else {
     return undefined;
   }
+}
+
+// Function to poll the set status
+// eslint-disable-next-line require-jsdoc, no-unused-vars
+async function pollSetStatus(url, setId, interval = 2000, timeout = 60000) {
+  const startTime = Date.now(); // Track the start time
+
+  try {
+    console.log(`Polling the set status for setId: ${setId}`);
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const elapsedTime = Date.now() - startTime;
+
+      // Check if the timeout has been reached
+      if (elapsedTime >= timeout) {
+        console.log(`Polling timed out after ${timeout / 1000} seconds.`);
+        break;
+      }
+
+      // Poll the URL for set status
+      const response = await axios.get(`${url}`);
+      const {status} = response.data;
+
+      console.log(`Current status: ${status}`);
+
+      if (status.state === 'closed') {
+        console.log(`Set ${setId} is completed!`);
+        break;
+      }
+
+      console.log(`Waiting for ${interval / 1000} seconds before the next poll...`);
+      // Wait for the specified interval before the next poll
+      await delay(interval);
+    }
+  } catch (error) {
+    console.error('Error while polling:', error.message || error);
+  }
+}
+
+// Helper function to delay execution, returning a promise
+// eslint-disable-next-line require-jsdoc
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 module.exports = {

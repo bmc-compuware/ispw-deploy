@@ -1,4 +1,4 @@
-require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
+/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 2932:
@@ -6,6 +6,10 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 
 const core = __nccwpck_require__(2186);
 const utils = __nccwpck_require__(2045);
+const axios = __nccwpck_require__(6545);
+
+let setID;
+let setUrl;
 
 try {
   let deployParms;
@@ -100,7 +104,22 @@ try {
       }
     )
     .then(
-      () => console.log("The deploy request has been submitted."),
+      () => {
+        console.log("The deploy request has been submitted.");
+        console.log("The set_id is :", setID);
+        console.log("The set_url is :", setUrl);       
+        let skipWaitingForSetCompletion = false;
+          if (!skipWaitingForSetCompletion) {
+            if (setID) {
+              pollSetStatus(setUrl, setID);
+            }
+          }
+          if (skipWaitingForSetCompletion) {
+            console.log(
+              "Skip waiting for the completion of the set for this job..."
+            );
+          }
+      },
       (error) => {
         console.log("An error occurred while submitting the deploy request.");
         if (error.stack) {
@@ -204,11 +223,13 @@ function setOutputs(core, responseBody) {
     if (responseBody.setId) {      
       console.log( "Code Pipeline: received set ID: " + responseBody.setId)
       core.setOutput("set_id", responseBody.setId);
+      setID=responseBody.setId;
     }
 
     if (responseBody.url) {
       console.log( "Code Pipeline: received URL: " + responseBody.url)
       core.setOutput("url", responseBody.url);
+      setUrl=responseBody.url;
     }
   }
 }
@@ -337,6 +358,50 @@ function isAuthTokenOrCerti(cesToken, certificate) {
   } else {
     return undefined;
   }
+}
+
+// Function to poll the set status
+// eslint-disable-next-line require-jsdoc, no-unused-vars
+async function pollSetStatus(url, setId, interval = 2000, timeout = 60000) {
+  const startTime = Date.now(); // Track the start time
+
+  try {
+    console.log(`Polling the set status for setId: ${setId}`);
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const elapsedTime = Date.now() - startTime;
+
+      // Check if the timeout has been reached
+      if (elapsedTime >= timeout) {
+        console.log(`Polling timed out after ${timeout / 1000} seconds.`);
+        break;
+      }
+
+      // Poll the URL for set status
+      const response = await axios.get(`${url}`);
+      const {status} = response.data;
+
+      console.log(`Current status: ${status}`);
+
+      if (status.state === 'closed') {
+        console.log(`Set ${setId} is completed!`);
+        break;
+      }
+
+      console.log(`Waiting for ${interval / 1000} seconds before the next poll...`);
+      // Wait for the specified interval before the next poll
+      await delay(interval);
+    }
+  } catch (error) {
+    console.error('Error while polling:', error.message || error);
+  }
+}
+
+// Helper function to delay execution, returning a promise
+// eslint-disable-next-line require-jsdoc
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 module.exports = {
@@ -2342,28 +2407,6 @@ function getHttpPostPromise(requestUrl, token, requestBody) {
   return axios.post(requestUrl.href, requestBody, options);
 }
 
-/**
- * Gets a promise for sending an http POST request with certi
- * @param {URL} requestUrl the URL to send hte request to
- * @param {string} certificate the certificate to use during authentication
- * @param {string} host the host 
- * @param {string} port the port
- * @param {*} requestBody the request body object
- * @return {Promise} the Promise for the request
- */
-function getHttpPostPromiseWithCert(requestUrl, certificate, host, port, requestBody) {
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-      //'authorization': token,
-      'cpwr_hci_host': host,
-      'cpwr_hci_port': port,
-      'javax.servlet.request.X509Certificate': certificate,
-    },
-  };
-  return axios.post(requestUrl.href, requestBody, options);
-}
-
 
 /**
  * The status message in the awaitStatus coming back from CES may be a single string, or an array.
@@ -2392,7 +2435,6 @@ module.exports = {
   stringHasContent,
   getStatusMessageToPrint,
   getHttpPostPromise,
-  getHttpPostPromiseWithCert,
 };
 
 
@@ -31172,4 +31214,3 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.1","description":"P
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=index.js.map
