@@ -105,7 +105,7 @@ try {
         let skipWaitingForSetCompletion = false;
           if (!skipWaitingForSetCompletion) {
             if (setID) {
-              pollSetStatus(setUrl, setID);
+              pollSetStatus(setUrl, setID, inputs.ces_token);
             }
           }
           if (skipWaitingForSetCompletion) {
@@ -356,7 +356,7 @@ function isAuthTokenOrCerti(cesToken, certificate) {
 
 // Function to poll the set status
 // eslint-disable-next-line require-jsdoc, no-unused-vars
-async function pollSetStatus(url, setId, interval = 2000, timeout = 60000) {
+async function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000) {
   const startTime = Date.now(); // Track the start time
 
   try {
@@ -373,7 +373,12 @@ async function pollSetStatus(url, setId, interval = 2000, timeout = 60000) {
       }
 
       // Poll the URL for set status
-      const response = await axios.get(`${url}`);
+      const response = await axios.get(`${url}`, {
+        headers: {
+         "Content-Type": "application/json",
+          Authorization: `${token}`,  // Add the token to the headers
+        },
+      });
       const {status} = response.data;
 
       console.log(`Current status: ${status}`);
