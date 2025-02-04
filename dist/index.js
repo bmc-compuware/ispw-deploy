@@ -389,11 +389,11 @@ async function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000
       console.log('Response data:', response.data);
       console.log('State:', response.data.state);
 
-      const {status} = response.data;
+      const status = response.data.state;
 
       console.log(`Current status: ${status}`);
 
-      if (status.state === 'closed') {
+      if (status === 'closed') {
         console.log(`Set ${setId} is completed!`);
         break;
       }
