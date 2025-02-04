@@ -387,7 +387,7 @@ async function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000
       });
 
       console.log('Response data:', response.data);
-      console.log('Response data:', response.data.state);
+      console.log('State:', response.data.state);
 
       const {status} = response.data;
 
