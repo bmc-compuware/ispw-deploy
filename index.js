@@ -16,6 +16,7 @@ const SET_STATE_RELEASED = "Released";
 const SET_STATE_TERMINATED = "Terminated";
 const SET_STATE_WAITING_APPROVAL = "Waiting-Approval";
 const SET_STATE_WAITING_LOCK = "Waiting-Lock";
+const SET_STATE_DEPLOY_FAILED = "Deploy-Failed";
 
 try {
   let deployParms;
@@ -392,21 +393,10 @@ async function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000
         },
       });
 
-      delay(interval);
-      // console.log('Response data:', response.data);
-      // console.log('State:', response.data.state);
-
       const setStatus = response.data.state;
 
-      console.log(`Current status: ${setStatus}`);
-
-      // if (setStatus == 'Closed') {
-      //   console.log(`Set ${setId} is completed!`);
-      //   break;
-      // }
-
       console.log("Waiting for set to complete...");
-      if (setStatus == SET_STATE_FAILED) {
+      if (setStatus == SET_STATE_FAILED || setStatus == SET_STATE_DEPLOY_FAILED) {
         console.log(
           "Code Pipeline: Set " + setId + " - action [%s] failed.",
           "Deploy"
@@ -443,7 +433,7 @@ async function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000
         setStatus == SET_STATE_COMPLETE
       ) {
         console.log(
-          "Code Pipeline: Action completed."
+          "Code Pipeline: Deploy Action completed."
         );
         break;
       }
