@@ -112,9 +112,7 @@ try {
     )
     .then(
       () => {
-        console.log("The deploy request has been submitted.");
-        console.log("The set_id is :", setID);
-        console.log("The set_url is :", setUrl);       
+        console.log("The deploy request has been submitted.");       
         let skipWaitingForSetCompletion = false;
           if (!skipWaitingForSetCompletion) {
             if (setID) {
@@ -140,7 +138,7 @@ try {
       }
     );
   }else {
-    //for certi
+    //for certificate
     utils
     .getHttpPostPromiseWithCert(reqUrl, inputs.certificate, host, port, reqBodyObj)
     .then(
@@ -227,14 +225,12 @@ function handleResponseBody(responseBody) {
  */
 function setOutputs(core, responseBody) {
   if (responseBody) {
-    if (responseBody.setId) {      
-      console.log( "Code Pipeline: received set ID: " + responseBody.setId)
+    if (responseBody.setId) {
       core.setOutput("set_id", responseBody.setId);
       setID=responseBody.setId;
     }
 
     if (responseBody.url) {
-      console.log( "Code Pipeline: received URL: " + responseBody.url)
       core.setOutput("url", responseBody.url);
       setUrl=responseBody.url;
     }
@@ -394,7 +390,7 @@ async function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000
       });
 
       const setStatus = response.data.state;
-
+      console.log("Current set status : ", setStatus);
       console.log("Waiting for set to complete...");
       if (setStatus == SET_STATE_FAILED || setStatus == SET_STATE_DEPLOY_FAILED) {
         console.log(
