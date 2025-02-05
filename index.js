@@ -392,59 +392,60 @@ async function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000
         },
       });
 
+      await delay(interval);
       // console.log('Response data:', response.data);
-      console.log('State:', response.data.state);
+      // console.log('State:', response.data.state);
 
       const setStatus = response.data.state;
 
       console.log(`Current status: ${setStatus}`);
 
-      if (setStatus == 'Closed') {
-        console.log(`Set ${setId} is completed!`);
-        break;
-      }
-
-      // console.log("Waiting for set to complete...");
-      // if (setStatus == SET_STATE_FAILED) {
-      //   console.log(
-      //     "Code Pipeline: Set " + setId + " - action [%s] failed.",
-      //     "Deploy"
-      //   );
-      //   break;
-      // } else if (setStatus == SET_STATE_TERMINATED) {
-      //   console.log(
-      //     "Code Pipeline: Set " + setId + " - successfully terminated."
-      //   );
-      //   break;
-      // } else if (setStatus == SET_STATE_HELD) {
-      //   console.log(
-      //     "Code Pipeline: Set " + setId + " - successfully held."
-      //   );
-      //   break;
-      // } else if (
-      //   setStatus == SET_STATE_RELEASED ||
-      //   setStatus == SET_STATE_WAITING_LOCK
-      // ) {
-      //   console.log(
-      //     "Code Pipeline: Set " + setId + " - successfully released."
-      //   );
-      //   break;
-      // } else if (setStatus == SET_STATE_WAITING_APPROVAL) {
-      //   console.log(
-      //     "Code Pipeline: In set (" +
-      //     setId +
-      //       ") process, Approval required."
-      //   );
-      //   break;
-      // } else if (
-      //   setStatus == SET_STATE_CLOSED ||
-      //   setStatus == SET_STATE_COMPLETE
-      // ) {
-      //   console.log(
-      //     "Code Pipeline: Action completed."
-      //   );
+      // if (setStatus == 'Closed') {
+      //   console.log(`Set ${setId} is completed!`);
       //   break;
       // }
+
+      console.log("Waiting for set to complete...");
+      if (setStatus == SET_STATE_FAILED) {
+        console.log(
+          "Code Pipeline: Set " + setId + " - action [%s] failed.",
+          "Deploy"
+        );
+        break;
+      } else if (setStatus == SET_STATE_TERMINATED) {
+        console.log(
+          "Code Pipeline: Set " + setId + " - successfully terminated."
+        );
+        break;
+      } else if (setStatus == SET_STATE_HELD) {
+        console.log(
+          "Code Pipeline: Set " + setId + " - successfully held."
+        );
+        break;
+      } else if (
+        setStatus == SET_STATE_RELEASED ||
+        setStatus == SET_STATE_WAITING_LOCK
+      ) {
+        console.log(
+          "Code Pipeline: Set " + setId + " - successfully released."
+        );
+        break;
+      } else if (setStatus == SET_STATE_WAITING_APPROVAL) {
+        console.log(
+          "Code Pipeline: In set (" +
+          setId +
+            ") process, Approval required."
+        );
+        break;
+      } else if (
+        setStatus == SET_STATE_CLOSED ||
+        setStatus == SET_STATE_COMPLETE
+      ) {
+        console.log(
+          "Code Pipeline: Action completed."
+        );
+        break;
+      }
 
       console.log(`Waiting for ${interval / 1000} seconds before the next poll...`);
       // Wait for the specified interval before the next poll
