@@ -376,7 +376,7 @@ function isAuthTokenOrCerti(cesToken, certificate) {
 // eslint-disable-next-line require-jsdoc, no-unused-vars
 async function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000) {
   const startTime = Date.now(); // Track the start time
-
+  let approvalCount = 0;
   try {
     console.log(`Polling the set status for setId: ${setId}`);
 
@@ -398,7 +398,7 @@ async function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000
         },
       });
 
-      await delay(interval);
+      delay(interval);
       // console.log('Response data:', response.data);
       // console.log('State:', response.data.state);
 
@@ -436,7 +436,8 @@ async function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000
           "Code Pipeline: Set " + setId + " - successfully released."
         );
         break;
-      } else if (setStatus == SET_STATE_WAITING_APPROVAL) {
+      } else if (setStatus == SET_STATE_WAITING_APPROVAL && approvalCount > 2) {
+        approvalCount++;
         console.log(
           "Code Pipeline: In set (" +
           setId +
