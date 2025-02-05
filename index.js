@@ -389,9 +389,9 @@ async function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000
         },
       });
 
+      console.log("Response: \n", response.data);
       const setStatus = response.data.state;
-      console.log("Current set status : ", setStatus);
-      console.log("Waiting for set to complete...");
+      console.log("Set "+setID+" status - ", setStatus);
       if (setStatus == SET_STATE_FAILED || setStatus == SET_STATE_DEPLOY_FAILED) {
         console.log(
           "Code Pipeline: Set " + setId + " - action [%s] failed.",
@@ -434,7 +434,7 @@ async function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000
         break;
       }
 
-      console.log(`Waiting for ${interval / 1000} seconds before the next poll...`);
+      // console.log(`Waiting for ${interval / 1000} seconds before the next poll...`);
       // Wait for the specified interval before the next poll
       await delay(interval);
     }
