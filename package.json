@@ -1,7 +1,7 @@
 {
-  "name": "javascript-action",
-  "version": "2.2.0",
-  "description": "JavaScript Action Template",
+  "name": "code-pipeline-deploy",
+  "version": "2.3.0",
+  "description": "Code Pipeline github action deploy",
   "main": "index.js",
   "scripts": {
     "build": "ncc build index.js -o dist",
@@ -14,19 +14,23 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/javascript-action.git"
+     "url": "git+https://github.com/bmc-compuware/ispw-deploy.git"
   },
-  "keywords": [
-    "GitHub",
-    "Actions",
-    "JavaScript"
+ "keywords": [
+    "ISPW",
+    "ispw-build",
+    "BMC",
+    "Compuware",
+    "actions",
+    "Code Pipeline",
+    "AMI"
   ],
-  "author": "",
+  "author": "BMC",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/actions/javascript-action/issues"
+    "url": "https://github.com/bmc-compuware/ispw-deploy/issues"
   },
-  "homepage": "https://github.com/actions/javascript-action#readme",
+  "homepage": "https://github.com/marketplace/actions/code-pipeline-deploy",
   "dependencies": {
     "@actions/core": "^1.10.1",
     "@actions/github": "^5.1.1",
