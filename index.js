@@ -166,7 +166,20 @@ try {
         }
       )
       .then(
-        () => console.log("The deploy request has been submitted."),
+        () => {
+          console.log("The deploy request has been submitted.");
+          let skipWaitingForSetCompletion = false;
+          if (!skipWaitingForSetCompletion) {
+            if (setID) {
+              utils.pollSetStatus(setUrl, setID, inputs.ces_token, "Deploy");
+            }
+          }
+          if (skipWaitingForSetCompletion) {
+            console.log(
+              "Skip waiting for the completion of the set for this job..."
+            );
+          }
+        },
         (error) => {
           console.log("An error occurred while submitting the deploy request.");
           if (error.stack) {
