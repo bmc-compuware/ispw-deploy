@@ -1,22 +1,9 @@
 /* eslint-disable no-unused-vars */
 const core = require("@actions/core");
 const utils = require("@bmc-compuware/ispw-action-utilities");
-const axios = require('axios');
 
 let setID;
 let setUrl;
-
-const SET_STATE_DISPATCHED = "Dispatched";
-const SET_STATE_EXECUTING = "Executing";
-const SET_STATE_COMPLETE = "Complete";
-const SET_STATE_CLOSED = "Closed";
-const SET_STATE_FAILED = "Failed";
-const SET_STATE_HELD = "Held";
-const SET_STATE_RELEASED = "Released";
-const SET_STATE_TERMINATED = "Terminated";
-const SET_STATE_WAITING_APPROVAL = "Waiting-Approval";
-const SET_STATE_WAITING_LOCK = "Waiting-Lock";
-const SET_STATE_DEPLOY_FAILED = "Deploy-Failed";
 
 try {
   let deployParms;
@@ -33,11 +20,13 @@ try {
     "execution_status",
     "deploy_automatically",
     "deploy_environments",
-    "system"
+    "system",
   ];
-  
+
   inputs = utils.retrieveInputs(core, inputs);
-  core.debug("Code Pipeline: parsed inputs: " + utils.convertObjectToJson(inputs));
+  core.debug(
+    "Code Pipeline: parsed inputs: " + utils.convertObjectToJson(inputs)
+  );
 
   if (utils.stringHasContent(inputs.deploy_automatically)) {
     console.log(
@@ -54,7 +43,8 @@ try {
     );
   }
   core.debug(
-    "Code Pipeline: parsed deploy parms: " + utils.convertObjectToJson(deployParms)
+    "Code Pipeline: parsed deploy parms: " +
+      utils.convertObjectToJson(deployParms)
   );
 
   const requiredFields = ["containerId", "taskLevel", "taskIds"];
@@ -78,45 +68,47 @@ try {
   );
 
   // getting host port details from srid passed
-  const hostAndPort = inputs.srid.split('-');
+  const hostAndPort = inputs.srid.split("-");
   const host = hostAndPort[0];
   const port = hostAndPort[1];
- 
-  if(isAuthTokenOrCerti(inputs.ces_token, inputs.certificate)) {
+
+  if (isAuthTokenOrCerti(inputs.ces_token, inputs.certificate)) {
     //for token
     utils
-    .getHttpPostPromise(reqUrl, inputs.ces_token, reqBodyObj)
-    .then(
-      (response) => {
-        core.debug(
-          "Code Pipeline: received response body: " +
-            utils.convertObjectToJson(response.data)
-        );
-        // deploy could have passed or failed
-        setOutputs(core, response.data);
-        return handleResponseBody(response.data);
-      },
-      (error) => {
-        // there was a problem with the request to CES
-        if (error.response !== undefined) {
-          console.debug("Code Pipeline: received error code: " + error.response.status);
-          console.debug(
-            "Code Pipeline: received error response body: " +
-              utils.convertObjectToJson(error.response.data)
+      .getHttpPostPromise(reqUrl, inputs.ces_token, reqBodyObj)
+      .then(
+        (response) => {
+          core.debug(
+            "Code Pipeline: received response body: " +
+              utils.convertObjectToJson(response.data)
           );
-          setOutputs(core, error.response.data);
-          throw new DeployFailureException(error.response.data.message);
+          // deploy could have passed or failed
+          setOutputs(core, response.data);
+          return handleResponseBody(response.data);
+        },
+        (error) => {
+          // there was a problem with the request to CES
+          if (error.response !== undefined) {
+            console.debug(
+              "Code Pipeline: received error code: " + error.response.status
+            );
+            console.debug(
+              "Code Pipeline: received error response body: " +
+                utils.convertObjectToJson(error.response.data)
+            );
+            setOutputs(core, error.response.data);
+            throw new DeployFailureException(error.response.data.message);
+          }
+          throw error;
         }
-        throw error;
-      }
-    )
-    .then(
-      () => {
-        console.log("The deploy request has been submitted.");       
-        let skipWaitingForSetCompletion = false;
+      )
+      .then(
+        () => {
+          console.log("The deploy request has been submitted.");
+          let skipWaitingForSetCompletion = false;
           if (!skipWaitingForSetCompletion) {
             if (setID) {
-              pollSetStatus(setUrl, setID, inputs.ces_token);
+              utils.pollSetStatus(setUrl, setID, inputs.ces_token, "Deploy");
             }
           }
           if (skipWaitingForSetCompletion) {
@@ -124,66 +116,88 @@ try {
               "Skip waiting for the completion of the set for this job..."
             );
           }
-      },
-      (error) => {
-        console.log("An error occurred while submitting the deploy request.");
-        if (error.stack) {
-          core.debug(error.stack);
-        } else if (error.message) {
-          core.debug(error.message);
-        } else {
-          core.debug(error);
+        },
+        (error) => {
+          console.log("An error occurred while submitting the deploy request.");
+          if (error.stack) {
+            core.debug(error.stack);
+          } else if (error.message) {
+            core.debug(error.message);
+          } else {
+            core.debug(error);
+          }
+          core.setFailed(error.message);
         }
-        core.setFailed(error.message);
-      }
-    );
-  }else {
+      );
+  } else {
     //for certificate
     utils
-    .getHttpPostPromiseWithCert(reqUrl, inputs.certificate, host, port, reqBodyObj)
-    .then(
-      (response) => {
-        core.debug(
-          "Code Pipeline: received response body: " +
-            utils.convertObjectToJson(response.data)
-        );
-        // deploy could have passed or failed
-        setOutputs(core, response.data);
-        return handleResponseBody(response.data);
-      },
-      (error) => {
-        // there was a problem with the request to CES
-        if (error.response !== undefined) {
-          console.debug("Code Pipeline: received error code: " + error.response.status);
-          console.debug(
-            "Code Pipeline: received error response body: " +
-              utils.convertObjectToJson(error.response.data)
+      .getHttpPostPromiseWithCert(
+        reqUrl,
+        inputs.certificate,
+        host,
+        port,
+        reqBodyObj
+      )
+      .then(
+        (response) => {
+          core.debug(
+            "Code Pipeline: received response body: " +
+              utils.convertObjectToJson(response.data)
           );
-          setOutputs(core, error.response.data);
-          throw new DeployFailureException(error.response.data.message);
+          // deploy could have passed or failed
+          setOutputs(core, response.data);
+          return handleResponseBody(response.data);
+        },
+        (error) => {
+          // there was a problem with the request to CES
+          if (error.response !== undefined) {
+            console.debug(
+              "Code Pipeline: received error code: " + error.response.status
+            );
+            console.debug(
+              "Code Pipeline: received error response body: " +
+                utils.convertObjectToJson(error.response.data)
+            );
+            setOutputs(core, error.response.data);
+            throw new DeployFailureException(error.response.data.message);
+          }
+          throw error;
         }
-        throw error;
-      }
-    )
-    .then(
-      () => console.log("The deploy request has been submitted."),
-      (error) => {
-        console.log("An error occurred while submitting the deploy request.");
-        if (error.stack) {
-          core.debug(error.stack);
-        } else if (error.message) {
-          core.debug(error.message);
-        } else {
-          core.debug(error);
+      )
+      .then(
+        () => {
+          console.log("The deploy request has been submitted.");
+          let skipWaitingForSetCompletion = false;
+          if (!skipWaitingForSetCompletion) {
+            if (setID) {
+              utils.pollSetStatus(setUrl, setID, inputs.ces_token, "Deploy");
+            }
+          }
+          if (skipWaitingForSetCompletion) {
+            console.log(
+              "Skip waiting for the completion of the set for this job..."
+            );
+          }
+        },
+        (error) => {
+          console.log("An error occurred while submitting the deploy request.");
+          if (error.stack) {
+            core.debug(error.stack);
+          } else if (error.message) {
+            core.debug(error.message);
+          } else {
+            core.debug(error);
+          }
+          core.setFailed(error.message);
         }
-        core.setFailed(error.message);
-      }
-    );
+      );
   }
   // the following code will execute after the HTTP request was started,
   // but before it receives a response.
   console.log(
-    "Starting to submit the deploy request for task " + deployParms.taskIds.toString()
+    "Starting to submit the deploy request for task " +
+      deployParms.taskIds.toString()
   );
 } catch (error) {
   if (error instanceof MissingArgumentException) {
@@ -226,13 +240,15 @@ function handleResponseBody(responseBody) {
 function setOutputs(core, responseBody) {
   if (responseBody) {
     if (responseBody.setId) {
+      console.log("Code Pipeline: Set Id - ", responseBody.setId);
       core.setOutput("set_id", responseBody.setId);
-      setID=responseBody.setId;
+      setID = responseBody.setId;
     }
 
     if (responseBody.url) {
+      console.log("Code Pipeline: Set Info Url - ", responseBody.url);
       core.setOutput("url", responseBody.url);
-      setUrl=responseBody.url;
+      setUrl = responseBody.url;
     }
   }
 }
@@ -361,92 +377,6 @@ function isAuthTokenOrCerti(cesToken, certificate) {
   } else {
     return undefined;
   }
-}
-
-// Function to poll the set status
-// eslint-disable-next-line require-jsdoc, no-unused-vars
-async function pollSetStatus(url, setId, token, interval = 2000, timeout = 60000) {
-  const startTime = Date.now(); // Track the start time
-  let approvalCount = 0;
-  try {
-    console.log(`Polling the set status for setId: ${setId}`);
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      const elapsedTime = Date.now() - startTime;
-
-      // Check if the timeout has been reached
-      if (elapsedTime >= timeout) {
-        console.log(`Polling timed out after ${timeout / 1000} seconds.`);
-        break;
-      }
-
-      // Poll the URL for set status
-      const response = await axios.get(`${url}`, {
-        headers: {
-         "Content-Type": "application/json",
-          Authorization: `${token}`,  // Add the token to the headers
-        },
-      });
-
-      console.log("Response: \n", response.data);
-      const setStatus = response.data.state;
-      console.log("Set "+setID+" status - ", setStatus);
-      if (setStatus == SET_STATE_FAILED || setStatus == SET_STATE_DEPLOY_FAILED) {
-        console.log(
-          "Code Pipeline: Set " + setId + " - action [%s] failed.",
-          "Deploy"
-        );
-        break;
-      } else if (setStatus == SET_STATE_TERMINATED) {
-        console.log(
-          "Code Pipeline: Set " + setId + " - successfully terminated."
-        );
-        break;
-      } else if (setStatus == SET_STATE_HELD) {
-        console.log(
-          "Code Pipeline: Set " + setId + " - successfully held."
-        );
-        break;
-      } else if (
-        setStatus == SET_STATE_RELEASED ||
-        setStatus == SET_STATE_WAITING_LOCK
-      ) {
-        console.log(
-          "Code Pipeline: Set " + setId + " - successfully released."
-        );
-        break;
-      } else if (setStatus == SET_STATE_WAITING_APPROVAL && approvalCount > 2) {
-        approvalCount++;
-        console.log(
-          "Code Pipeline: In set (" +
-          setId +
-            ") process, Approval required."
-        );
-        break;
-      } else if (
-        setStatus == SET_STATE_CLOSED ||
-        setStatus == SET_STATE_COMPLETE
-      ) {
-        console.log(
-          "Code Pipeline: Deploy Action completed."
-        );
-        break;
-      }
-
-      // console.log(`Waiting for ${interval / 1000} seconds before the next poll...`);
-      // Wait for the specified interval before the next poll
-      await delay(interval);
-    }
-  } catch (error) {
-    console.error('Error while polling:', error.message || error);
-  }
-}
-
-// Helper function to delay execution, returning a promise
-// eslint-disable-next-line require-jsdoc
-function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 module.exports = {
