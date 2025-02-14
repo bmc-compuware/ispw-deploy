@@ -37,7 +37,7 @@
     "@bmc-compuware/ispw-action-utilities": "https://github.com/bmc-compuware/ispw-action-utilities.git#main",
     "chai": "^4.3.4",
     "github": "^14.0.0",
-    "mocha": "^8.4.0",
+    "mocha": "^11.1.0",
     "nyc": "^15.1.0",
     "prettier": "^2.3.0"
   },
