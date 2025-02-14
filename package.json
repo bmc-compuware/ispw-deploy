@@ -33,7 +33,7 @@
   "homepage": "https://github.com/marketplace/actions/code-pipeline-deploy",
   "dependencies": {
     "@actions/core": "^1.10.1",
-    "@actions/github": "^5.1.1",
+    "@actions/github": "^6.0.0",
     "@bmc-compuware/ispw-action-utilities": "https://github.com/bmc-compuware/ispw-action-utilities.git#main",
     "chai": "^4.3.4",
     "github": "^14.0.0",
