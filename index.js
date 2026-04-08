@@ -47,7 +47,7 @@ try {
       utils.convertObjectToJson(deployParms)
   );
 
-  const requiredFields = ["containerId", "taskLevel", "taskIds"];
+  const requiredFields = ["containerId", "taskLevel"];
   if (!utils.validateBuildParms(deployParms, requiredFields)) {
     throw new MissingArgumentException(
       "Inputs required for Code Pipeline Deploy are missing. " +
