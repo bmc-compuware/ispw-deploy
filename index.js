@@ -78,6 +78,7 @@ try {
       .getHttpPostPromise(reqUrl, inputs.ces_token, reqBodyObj)
       .then(
         (response) => {
+          console.debug("my response before error"+response)
           core.debug(
             "Code Pipeline: received response body: " +
               utils.convertObjectToJson(response.data)
@@ -103,12 +104,14 @@ try {
         }
       )
       .then(
-        () => {
+        (response) => {
           console.log("The deploy request has been submitted.");
           let skipWaitingForSetCompletion = false;
           if (!skipWaitingForSetCompletion) {
             if (setID) {
-              utils.pollSetStatus(setUrl, setID, inputs.ces_token, "Deploy");
+              utils.pollSetStatus(setUrl, setID, inputs.ces_token, 'Deploy',
+                  2000, 60000, inputs.level, inputs.srid,
+                  inputs.runtime_configuration, inputs.ces_url, core);
             }
           }
           if (skipWaitingForSetCompletion) {
@@ -195,10 +198,10 @@ try {
   }
   // the following code will execute after the HTTP request was started,
   // but before it receives a response.
-  console.log(
+  /*console.log(
     "Starting to submit the deploy request for task " +
       deployParms.taskIds.toString()
-  );
+  );*/
 } catch (error) {
   if (error instanceof MissingArgumentException) {
     // this would occur if there was nothing to load during the sync process
