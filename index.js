@@ -47,7 +47,7 @@ try {
       utils.convertObjectToJson(deployParms)
   );
 
-  const requiredFields = ["assignment_id", "taskLevel"];
+  const requiredFields = ["assignment_id", "level"];
   if (!utils.validateBuildParms(deployParms, requiredFields)) {
     throw new MissingArgumentException(
       "Inputs required for Code Pipeline Deploy are missing. " +
@@ -270,7 +270,7 @@ function getParmsFromInputs(inputAssignment, inputLevel, inputTaskId) {
   }
 
   if (utils.stringHasContent(inputLevel)) {
-    deployParms.taskLevel = inputLevel;
+    deployParms.level = inputLevel;
   }
 
   if (utils.stringHasContent(inputTaskId)) {
@@ -318,7 +318,7 @@ function getDeployTaskUrlPath(srid, deployParms) {
     tempUrlStr = tempUrlStr.concat(`taskId=${deployParms.taskIds}&`);
   }
 
-  tempUrlStr = tempUrlStr.concat(`level=${deployParms.taskLevel}`);
+  tempUrlStr = tempUrlStr.concat(`level=${deployParms.level}`);
   return tempUrlStr;
 }
 
