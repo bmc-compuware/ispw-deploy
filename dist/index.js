@@ -53,7 +53,7 @@ try {
       utils.convertObjectToJson(deployParms)
   );
 
-  const requiredFields = ["containerId", "taskLevel"];
+  const requiredFields = ["containerId", "level"];
   if (!utils.validateBuildParms(deployParms, requiredFields)) {
     throw new MissingArgumentException(
       "Inputs required for Code Pipeline Deploy are missing. " +
@@ -317,13 +317,14 @@ function getDeployTaskUrlPath(srid, deployParms) {
   let tempUrlStr = `/ispw/${srid}/assignments/${deployParms.containerId}`;
   tempUrlStr = tempUrlStr.concat("/taskIds/deploy?");
   if (Array.isArray(deployParms.taskIds)) {
-    deployParms.taskIds.forEach((id) => {
-      tempUrlStr = tempUrlStr.concat(`taskId=${id}&`);
-    });
+    if (deployParms.taskIds && deployParms.taskIds.length > 0) {
+      deployParms.taskIds.forEach((id) => {
+        tempUrlStr = tempUrlStr.concat(`taskId=${id}&`);
+      });
+    }
   } else {
     tempUrlStr = tempUrlStr.concat(`taskId=${deployParms.taskIds}&`);
   }
-
   tempUrlStr = tempUrlStr.concat(`level=${deployParms.taskLevel}`);
   return tempUrlStr;
 }
