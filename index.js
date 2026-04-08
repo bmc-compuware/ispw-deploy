@@ -47,7 +47,7 @@ try {
       utils.convertObjectToJson(deployParms)
   );
 
-  const requiredFields = ["assignment_id", "level"];
+  const requiredFields = ["containerId", "taskLevel", "taskIds"];
   if (!utils.validateBuildParms(deployParms, requiredFields)) {
     throw new MissingArgumentException(
       "Inputs required for Code Pipeline Deploy are missing. " +
@@ -266,11 +266,11 @@ function setOutputs(core, responseBody) {
 function getParmsFromInputs(inputAssignment, inputLevel, inputTaskId) {
   const deployParms = {};
   if (utils.stringHasContent(inputAssignment)) {
-    deployParms.assignment_id = inputAssignment;
+    deployParms.containerId = inputAssignment;
   }
 
   if (utils.stringHasContent(inputLevel)) {
-    deployParms.level = inputLevel;
+    deployParms.taskLevel = inputLevel;
   }
 
   if (utils.stringHasContent(inputTaskId)) {
@@ -308,7 +308,7 @@ DeployFailureException.prototype = Object.create(Error.prototype);
  * @return {string} the request path which can be appended to the CES url
  */
 function getDeployTaskUrlPath(srid, deployParms) {
-  let tempUrlStr = `/ispw/${srid}/assignments/${deployParms.assignment_id}`;
+  let tempUrlStr = `/ispw/${srid}/assignments/${deployParms.containerId}`;
   tempUrlStr = tempUrlStr.concat("/taskIds/deploy?");
   if (Array.isArray(deployParms.taskIds)) {
     deployParms.taskIds.forEach((id) => {
@@ -318,7 +318,7 @@ function getDeployTaskUrlPath(srid, deployParms) {
     tempUrlStr = tempUrlStr.concat(`taskId=${deployParms.taskIds}&`);
   }
 
-  tempUrlStr = tempUrlStr.concat(`level=${deployParms.level}`);
+  tempUrlStr = tempUrlStr.concat(`level=${deployParms.taskLevel}`);
   return tempUrlStr;
 }
 
