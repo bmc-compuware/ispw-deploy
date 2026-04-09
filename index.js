@@ -313,12 +313,10 @@ DeployFailureException.prototype = Object.create(Error.prototype);
 function getDeployTaskUrlPath(srid, deployParms) {
   let tempUrlStr = `/ispw/${srid}/assignments/${deployParms.containerId}`;
   tempUrlStr = tempUrlStr.concat("/taskIds/deploy?");
-  if (Array.isArray(deployParms.taskIds)) {
-    deployParms.taskIds.forEach((id) => {
-      tempUrlStr = tempUrlStr.concat(`taskId=${id}&`);
-    });
-  } else {
-    tempUrlStr = tempUrlStr.concat(`taskId=${deployParms.taskIds}&`);
+  if (deployParms.taskIds && deployParms.taskIds.length > 0) {
+      deployParms.taskIds.forEach((id) => {
+        tempUrlStr = tempUrlStr.concat(`taskId=${id}&`);
+      });
   }  
   tempUrlStr = tempUrlStr.concat(`level=${deployParms.taskLevel}`);
   console.log("the complete URL :"+ tempUrlStr);  
