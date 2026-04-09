@@ -198,10 +198,13 @@ try {
   }
   // the following code will execute after the HTTP request was started,
   // but before it receives a response.
-  /*console.log(
+  if(deployParms.taskIds){
+    console.log(
     "Starting to submit the deploy request for task " +
       deployParms.taskIds.toString()
-  );*/
+    );
+  }
+  
 } catch (error) {
   if (error instanceof MissingArgumentException) {
     // this would occur if there was nothing to load during the sync process
