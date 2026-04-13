@@ -84,7 +84,6 @@ try {
       .getHttpPostPromise(reqUrl, inputs.ces_token, reqBodyObj)
       .then(
         (response) => {
-          console.debug("my response before error"+response)
           core.debug(
             "Code Pipeline: received response body: " +
               utils.convertObjectToJson(response.data)
@@ -110,14 +109,12 @@ try {
         }
       )
       .then(
-        (response) => {
+        () => {
           console.log("The deploy request has been submitted.");
           let skipWaitingForSetCompletion = false;
           if (!skipWaitingForSetCompletion) {
             if (setID) {
-              utils.pollSetStatus(setUrl, setID, inputs.ces_token, 'Deploy',
-                  2000, 60000, inputs.level, inputs.srid,
-                  inputs.runtime_configuration, inputs.ces_url, core);
+              utils.pollSetStatus(setUrl, setID, inputs.ces_token, "Deploy");
             }
           }
           if (skipWaitingForSetCompletion) {
@@ -204,13 +201,12 @@ try {
   }
   // the following code will execute after the HTTP request was started,
   // but before it receives a response.
-  if(deployParms.taskIds){
+  if(utils.stringHasContent(deployParms.taskIds)){
     console.log(
     "Starting to submit the deploy request for task " +
       deployParms.taskIds.toString()
     );
-  }
-  
+  }  
 } catch (error) {
   if (error instanceof MissingArgumentException) {
     // this would occur if there was nothing to load during the sync process
@@ -322,13 +318,17 @@ DeployFailureException.prototype = Object.create(Error.prototype);
 function getDeployTaskUrlPath(srid, deployParms) {
   let tempUrlStr = `/ispw/${srid}/assignments/${deployParms.containerId}`;
   tempUrlStr = tempUrlStr.concat("/taskIds/deploy?");
-  if (deployParms.taskIds && deployParms.taskIds.length > 0) {
-      deployParms.taskIds.forEach((id) => {
-        tempUrlStr = tempUrlStr.concat(`taskId=${id}&`);
-      });
-  }  
+  if(utils.stringHasContent(deployParms.taskIds)){
+    if (Array.isArray(deployParms.taskIds)) {
+        deployParms.taskIds.forEach((id) => {
+          tempUrlStr = tempUrlStr.concat(`taskId=${id}&`);
+        });
+    } 
+    else {
+      tempUrlStr = tempUrlStr.concat(`taskId=${deployParms.taskIds}&`);
+    }
+  }
   tempUrlStr = tempUrlStr.concat(`level=${deployParms.taskLevel}`);
-  console.log("the complete URL :"+ tempUrlStr);  
   return tempUrlStr;
 }
 
