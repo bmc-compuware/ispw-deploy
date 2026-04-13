@@ -107,6 +107,15 @@ describe('#getDeployTaskUrlPath(srid, buildParms)', function () {
     assert.strictEqual(output, '/ispw/SRID/assignments/container1/taskIds/deploy?taskId=abc123&taskId=def456&level=DEV3');
 
   });
+  it('should handle empty taskIds', function () {
+    let output = index.getDeployTaskUrlPath('SRID', {
+      containerId: 'container1',
+      taskLevel: 'DEV3',
+      taskIds: ['']
+    });
+    assert.strictEqual(output, '/ispw/SRID/assignments/container1/taskIds/deploy?taskId=&level=DEV3');
+
+  });
 });
 
 describe('#assembleRequestBodyObject(runtimeConfiguration, changeType, executionStatus, autoDeploy)', function () {
