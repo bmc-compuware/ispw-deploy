@@ -1,4 +1,4 @@
-require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
+/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 32932:
@@ -53,7 +53,7 @@ try {
       utils.convertObjectToJson(deployParms)
   );
 
-  const requiredFields = ["containerId", "taskLevel", "taskIds"];
+  const requiredFields = ["containerId", "taskLevel"];
   if (!utils.validateBuildParms(deployParms, requiredFields)) {
     throw new MissingArgumentException(
       "Inputs required for Code Pipeline Deploy are missing. " +
@@ -201,10 +201,12 @@ try {
   }
   // the following code will execute after the HTTP request was started,
   // but before it receives a response.
-  console.log(
+  if(utils.stringHasContent(deployParms.taskIds)){
+    console.log(
     "Starting to submit the deploy request for task " +
       deployParms.taskIds.toString()
-  );
+    );
+  }  
 } catch (error) {
   if (error instanceof MissingArgumentException) {
     // this would occur if there was nothing to load during the sync process
@@ -316,14 +318,16 @@ DeployFailureException.prototype = Object.create(Error.prototype);
 function getDeployTaskUrlPath(srid, deployParms) {
   let tempUrlStr = `/ispw/${srid}/assignments/${deployParms.containerId}`;
   tempUrlStr = tempUrlStr.concat("/taskIds/deploy?");
-  if (Array.isArray(deployParms.taskIds)) {
-    deployParms.taskIds.forEach((id) => {
-      tempUrlStr = tempUrlStr.concat(`taskId=${id}&`);
-    });
-  } else {
-    tempUrlStr = tempUrlStr.concat(`taskId=${deployParms.taskIds}&`);
+  if(utils.stringHasContent(deployParms.taskIds)){
+    if (Array.isArray(deployParms.taskIds)) {
+        deployParms.taskIds.forEach((id) => {
+          tempUrlStr = tempUrlStr.concat(`taskId=${id}&`);
+        });
+    } 
+    else {
+      tempUrlStr = tempUrlStr.concat(`taskId=${deployParms.taskIds}&`);
+    }
   }
-
   tempUrlStr = tempUrlStr.concat(`level=${deployParms.taskLevel}`);
   return tempUrlStr;
 }
@@ -194524,4 +194528,3 @@ module.exports = JSON.parse('["UTF-8","IBM866","ISO-8859-2","ISO-8859-3","ISO-88
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=index.js.map

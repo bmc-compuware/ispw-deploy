@@ -114,6 +114,29 @@ jobs:
       - name: Get the set ID for the deploy
         run: echo "The Code Pipeline set used for the deploy is ${{ steps.deploy.outputs.set_id }}"
 ```
+The following example will deploy tasks at DEV1 level in assignment container PLAY000826.
+
+``` yaml
+on: [push]
+
+jobs:
+  run-ispw-deploy:
+    runs-on: ubuntu-latest
+    name: A job to deploy source in Code Pipeline
+    steps:
+      - name: Deploy
+        uses: bmc-compuware/ispw-deploy@v1
+        id: deploy
+        with:
+          ces_url: "https://CES:48226/"
+          ces_token: ${{ secrets.CES_TOKEN }}
+          srid: host-37733
+          runtime_configuration: ISPW
+          assignment_id: PLAY000826
+          level: DEV1
+      - name: Get the set ID for the deploy
+        run: echo "The Code Pipeline set used for the deploy is ${{ steps.deploy.outputs.set_id }}"
+```
 
 ## Inputs
 
@@ -124,10 +147,10 @@ jobs:
 | `change_type` | Optional | The change type of this request. The default value is 'S' for standard. |
 | `execution_status` | Optional | The flag to indicate whether the deploy should happen immediately, or should be held. The default is 'I' for immediate. Other possible value is 'H' for hold. |
 | `runtime_configuration` | Optional | The runtime configuration for the instance of Code Pipeline you are connecting to. |
-| `deploy_automatically` | Optional | A string of JSON that contains the parameters for the deploy. If using a Code Pipeline Sync step before the deploy, this JSON string can be retrieved from the outputs of that step. If `deploy_automatically` is not being used, then the `assignment_id`, `level`, and `task_id` must be specified. |
+| `deploy_automatically` | Optional | A string of JSON that contains the parameters for the deploy. If using a Code Pipeline Sync step before the deploy, this JSON string can be retrieved from the outputs of that step. If `deploy_automatically` is not being used, then the `assignment_id` and `level` must be specified. |
 | `assignment_id` | Optional | The assignment for which you intend to deploy tasks. Do not use if `deploy_automatically` has already been specified. |
 | `level` | Optional | The level that the tasks exist at in the assignment. Do not use if `deploy_automatically` has already been specified. |
-| `task_id` | Optional | The comma-separated string of task IDs for the tasks that need to be deployd. Do not use if `deploy_automatically` has already been specified. |
+| `task_id` | Optional | The comma-separated string of task IDs for the tasks that need to be deployd. Do not use if `deploy_automatically` has already been specified. Otherwise, if not specified the action will deploy all the tasks at specified level in an assignment container. |
 
 | `ces_token` | Optional | The token to use when authenticating the request to CES |
 | `certificate` | Optional | The certificate to use when authenticating the request to CES |
