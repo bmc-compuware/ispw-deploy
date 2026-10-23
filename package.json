@@ -14,9 +14,9 @@
   },
   "repository": {
     "type": "git",
-     "url": "git+https://github.com/bmc-compuware/ispw-deploy.git"
+    "url": "git+https://github.com/bmc-compuware/ispw-deploy.git"
   },
- "keywords": [
+  "keywords": [
     "ISPW",
     "ispw-build",
     "BMC",
@@ -45,5 +45,8 @@
     "@vercel/ncc": "^0.34.0",
     "eslint": "^7.27.0",
     "jest": "^27.0.1"
+  },
+  "overrides": {
+    "undici": "6.29.1"
   }
 }
