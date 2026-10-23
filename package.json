@@ -45,5 +45,8 @@
     "@vercel/ncc": "^0.34.0",
     "eslint": "^7.27.0",
     "jest": "^27.0.1"
+  },
+  "overrides": {
+    "serialize-javascript": "7.0.5"
   }
 }
