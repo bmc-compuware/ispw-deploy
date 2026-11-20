@@ -47,6 +47,7 @@
     "jest": "^27.0.1"
   },
   "overrides": {
+    "serialize-javascript": "7.0.5",
     "undici": "6.29.1"
   }
 }
